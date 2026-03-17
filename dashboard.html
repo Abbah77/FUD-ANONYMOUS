@@ -1735,44 +1735,45 @@
     }
 
     function renderMessages(messages) {
-        const messagesContainer = document.getElementById('chat-messages');
-        const isGlobal = currentChatId === 'global';
-        
-        // Keep the banner for global chat
-        if (isGlobal) {
-            const banner = messagesContainer.firstChild;
-            messagesContainer.innerHTML = '';
-            if (banner) messagesContainer.appendChild(banner);
-        } else {
-            messagesContainer.innerHTML = '';
-        }
-        
-        messages.forEach(msg => {
-            const isMyMessage = msg.sender_uid === currentUserData?.id;
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isMyMessage ? 'my-message' : ''}`;
-            
-            // Make avatar clickable for other users' messages
-            const avatarClick = isMyMessage ? '' : `onclick="showUserPopup('${msg.sender_uid}', '${msg.sender_reg_no}')" style="cursor: pointer;"`;
-            
-            messageDiv.innerHTML = `
-                <div class="message-avatar" ${avatarClick}>
-                    <div class="anonymous-avatar" style="width: 35px; height: 35px; font-size: 16px;">
-                        <i class="fas fa-user-secret"></i>
-                    </div>
-                </div>
-                <div class="message-bubble">
-                    <div>${msg.content}</div>
-                    <div class="message-time">${formatTime(msg.created_at)}</div>
-                </div>
-            `;
-            
-            messagesContainer.appendChild(messageDiv);
-        });
-        
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    const messagesContainer = document.getElementById('chat-messages');
+    const isGlobal = currentChatId === 'global';
+    
+    // Keep the banner for global chat
+    if (isGlobal) {
+        const banner = messagesContainer.firstChild;
+        messagesContainer.innerHTML = '';
+        if (banner) messagesContainer.appendChild(banner);
+    } else {
+        messagesContainer.innerHTML = '';
     }
+    
+    messages.forEach(msg => {
+        // 🔴 FIX THIS LINE - Change sender_uid to sender_id
+        const isMyMessage = msg.sender_id === currentUserData?.id;
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isMyMessage ? 'my-message' : ''}`;
+        
+        // 🔴 ALSO FIX THESE - Change sender_uid to sender_id
+        const avatarClick = isMyMessage ? '' : `onclick="showUserPopup('${msg.sender_id}', '${msg.sender_reg_no}')" style="cursor: pointer;"`;
+        
+        messageDiv.innerHTML = `
+            <div class="message-avatar" ${avatarClick}>
+                <div class="anonymous-avatar" style="width: 35px; height: 35px; font-size: 16px;">
+                    <i class="fas fa-user-secret"></i>
+                </div>
+            </div>
+            <div class="message-bubble">
+                <div>${msg.content}</div>
+                <div class="message-time">${formatTime(msg.created_at)}</div>
+            </div>
+        `;
+        
+        messagesContainer.appendChild(messageDiv);
+    });
+    
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
 
     // ========== PRIVATE CHATS LOADER ==========
     async function loadPrivateChats() {
