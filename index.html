@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FUD | Anonymous</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+    :root {
+    --ngl-red: #ff1d45;
+    --ngl-orange: #ff8235;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial Black', sans-serif; }
+
+body { background: #000; overflow: hidden; }
+
+/* THE GLASS NAV */
+.glass-nav {
+    position: fixed; top: 0; width: 100%; z-index: 1000;
+    padding: 10px; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-nav.scrolled {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 0.5px solid rgba(255,255,255,0.1);
+}
+
+.nav-content { display: flex; justify-content: space-between; align-items: center; max-width: 500px; margin: 0 auto; }
+.brand { color: white; font-size: 32px; font-weight: 900; font-style: italic; }
+
+.logo {
+    width: 10vh;
+    height: 8vh;
+    margin-left: auto;
+}
+    
+/* 2-AXIS SCROLL SYSTEM */
+.vertical-container {
+    height: 100vh;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+}
+
+.v-slide {
+    height: 100vh;
+    scroll-snap-align: start;
+    position: relative;
+    border-radius: 40px;
+    overflow: hidden;
+}
+
+.h-slider {
+    display: flex;
+    height: 100%;
+    overflow-x: scroll;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+}
+
+.card {
+    min-width: 100vw;
+    height: 100%;
+    scroll-snap-align: start;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card-bg {
+    position: absolute; width: 100%; height: 100%;
+    object-fit: cover; opacity: 0.7; z-index: -1;
+}
+
+/* TYPOGRAPHY & ASSETS */
+.thick-text {
+    font-size: 80px; line-height: 0.8; letter-spacing: -4px;
+    color: white; text-align: center; text-transform: lowercase;
+}
+
+.floating-3d {
+    position: absolute; font-size: 100px;
+    top: 15%; left: 10%;
+    filter: drop-shadow(0 20px 30px rgba(0,0,0,0.3));
+    animation: bounce 4s infinite ease-in-out;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-30px) rotate(5deg); }
+}
+
+/* GRADIENTS */
+.orange-grad { background: linear-gradient(180deg, var(--ngl-red), var(--ngl-orange)); }
+.black-bg { background: #000; }
+
+/* LUXURY BUTTON */
+.footer-cta {
+    position: fixed; bottom: 0; width: 100%;
+    padding: 30px; z-index: 1100;
+}
+
+.luxury-btn {
+    width: 100%; padding: 20px; border-radius: 50px;
+    border: none; background: white; color: var(--ngl-red);
+    font-weight: 900; font-size: 18px; cursor: pointer;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease;
+}
+
+.luxury-btn:active {
+    transform: scale(0.95);
+}
+
+    </style>
+</head>
+<body>
+
+    <nav class="glass-nav" id="navbar">
+        <div class="nav-content">
+            <span class="brand">F U D</span>
+            <div class="menu-dots"><span></span><span></span></div>
+            <img src="images/7.png" class="logo">
+        </div>
+    </nav>
+    
+    <main class="vertical-container">
+        
+        <section class="v-slide orange-grad">
+            <div class="h-slider">
+                <div class="card">
+                    <img src="images/1.jpg" class="card-bg" alt="Friends">
+                    <div class="card-overlay">
+                        <h1 class="thick-text">real<br>friends</h1>
+                        <span class="floating-3d">👋</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="images/2.jpg" class="card-bg" alt="Fun">
+                    <div class="card-overlay">
+                        <h1 class="thick-text">real<br>fun</h1>
+                        <span class="floating-3d">🥤</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="v-slide black-bg">
+            <div class="h-slider">
+                <div class="card">
+                    <img src="images/3.jpg" class="card-bg" alt="Games">
+                    <div class="card-overlay">
+                        <div class="chat-bubble" style="color: white; font-size: 24px; margin-bottom: 20px;">What's your secret?</div>
+                        <h1 class="thick-text white">games</h1>
+                        <span class="floating-3d">👑</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="footer-cta">
+        <button class="luxury-btn" onclick="handleGetStarted()" id="getStartedBtn">GET STARTED!</button>
+    </div>
+
+    <script>
+    // API Configuration - Update with your Render URL
+    const API_BASE_URL = window.location.hostname === 'localhost' 
+        ? 'http://localhost:8000' 
+        : 'https://fud-anonymous-b.onrender.com'; // Update this after deployment
+
+    // Scroll effect for navbar
+    const container = document.querySelector('.vertical-container');
+    const navbar = document.getElementById('navbar');
+
+    container.addEventListener('scroll', () => {
+        // Silver App Bar Blur Effect
+        if (container.scrollTop > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
+
+    // Touch feedback
+    document.addEventListener('touchstart', () => {
+        document.querySelector('.luxury-btn').style.transform = 'scale(0.95)';
+    });
+    document.addEventListener('touchend', () => {
+        document.querySelector('.luxury-btn').style.transform = 'scale(1)';
+    });
+
+    // Check authentication status with backend
+    async function checkAuthStatus() {
+        const token = localStorage.getItem('token');
+        const getStartedBtn = document.getElementById('getStartedBtn');
+        
+        if (!token) {
+            // No token, user needs to login
+            getStartedBtn.textContent = 'GET STARTED!';
+            return false;
+        }
+
+        try {
+            // Verify token with backend
+            const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                // User is authenticated, redirect to dashboard
+                window.location.href = 'dashboard.html';
+                return true;
+            } else {
+                // Token invalid, clear storage
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                getStartedBtn.textContent = 'GET STARTED!';
+                return false;
+            }
+        } catch (error) {
+            console.error('Auth check failed:', error);
+            // Network error or server down, still allow manual navigation
+            getStartedBtn.textContent = 'GET STARTED!';
+            return false;
+        }
+    }
+
+    // Handle Get Started button click
+    function handleGetStarted() {
+        const token = localStorage.getItem('token');
+        
+        if (token) {
+            // Try to verify token before redirecting to dashboard
+            checkAuthStatus().then(isAuthed => {
+                if (!isAuthed) {
+                    // Token invalid, go to auth page
+                    window.location.href = 'auth.html';
+                }
+            });
+        } else {
+            // No token, go to auth page
+            window.location.href = 'auth.html';
+        }
+    }
+
+    // Auto-check authentication when page loads
+    window.addEventListener('load', () => {
+        // Small delay to ensure smooth animation
+        setTimeout(checkAuthStatus, 500);
+    });
+
+    // Optional: Add loading state while checking auth
+    window.addEventListener('load', () => {
+        const btn = document.getElementById('getStartedBtn');
+        if (localStorage.getItem('token')) {
+            btn.textContent = 'LOADING...';
+        }
+    });
+
+    </script>
+</body>
+</html>
