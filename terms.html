@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms & Privacy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #f8f9fa;
+      color: #212529;
+      line-height: 1.6;
+    }
+    header {
+      background: #1a1a1a;
+      color: #fff;
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    h2 {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      cursor: pointer;
+      position: relative;
+      padding-right: 1.5rem;
+    }
+    h2::after {
+      content: '+';
+      position: absolute;
+      right: 0;
+      font-weight: bold;
+    }
+    h2.active::after {
+      content: '-';
+    }
+    .section-content {
+      display: none;
+      margin-top: 0.5rem;
+      padding-left: 0.5rem;
+      border-left: 3px solid #1a1a1a;
+    }
+    p {
+      margin: 0.5rem 0;
+    }
+    a {
+      color: #1a73e8;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 0.85rem;
+      color: #6c757d;
+    }
+  </style>
+</head>
+<body>
+
+<header>Terms of Use & Privacy Policy</header>
+
+<div class="container">
+
+  <h2>Introduction</h2>
+  <div class="section-content">
+    <p>Welcome! By using this platform, you agree to comply with our terms and privacy practices. This platform is intended for anonymous discussions and gossip.</p>
+  </div>
+
+  <h2>User Obligations</h2>
+  <div class="section-content">
+    <p>Users must not post illegal content, personal info of others, or defamatory content. You are responsible for what you post.</p>
+  </div>
+
+  <h2>Platform Rights & Moderation</h2>
+  <div class="section-content">
+    <p>The platform can remove posts, ban users, and use ML moderation to block sensitive keywords. All content is user-generated and unverified.</p>
+  </div>
+
+  <h2>Privacy & Data</h2>
+  <div class="section-content">
+    <p>We collect minimal data. Only anonymous identifiers or optional metadata for moderation. No personal data is sold or shared.</p>
+  </div>
+
+  <h2>Limitations & Disclaimer</h2>
+  <div class="section-content">
+    <p>The platform is not liable for user content or its consequences. Users post at their own risk.</p>
+  </div>
+
+  <h2>Termination</h2>
+  <div class="section-content">
+    <p>Violating terms may lead to bans, IP blocks, and content removal. Terms may be updated without notice.</p>
+  </div>
+
+</div>
+
+<footer>
+  &copy; 2026 students forum. All rights reserved.
+</footer>
+
+<script>
+  const headings = document.querySelectorAll('h2');
+  headings.forEach(h => {
+    h.addEventListener('click', () => {
+      h.classList.toggle('active');
+      const content = h.nextElementSibling;
+      content.style.display = content.style.display === 'block' ? 'none' : 'block';
+    });
+  });
+</script>
+
+</body>
+</html>
