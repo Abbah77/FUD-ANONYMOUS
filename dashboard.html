@@ -1,0 +1,1976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WhisperCampus - Anonymous Student Gossip</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* All your existing styles remain exactly the same */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        :root {
+            --primary: #ff4757;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg: #f0f2f5;
+            --card: #ffffff;
+            --text: #1e293b;
+            --gray: #64748b;
+            --light-gray: #e2e8f0;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --whatsapp: #25D366;
+            --messenger: #0084ff;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid var(--light-gray);
+            z-index: 1000;
+            padding-bottom: env(safe-area-inset-bottom);
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+        }
+
+        .nav-item {
+            font-size: 28px;
+            color: var(--gray);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 10px 20px;
+            border-radius: 30px;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            background: rgba(255, 71, 87, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .nav-item i {
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));
+        }
+
+        /* FAB - Only visible on feed */
+        .fab {
+            width: 65px;
+            height: 65px;
+            background: var(--gradient);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 35px;
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 999;
+            cursor: pointer;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .fab.hidden {
+            opacity: 0;
+            transform: scale(0);
+            pointer-events: none;
+        }
+
+        .fab:active {
+            transform: scale(0.9);
+        }
+
+        /* Views */
+        .view {
+            display: none;
+            padding: 20px 15px 80px;
+            min-height: 100vh;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        /* Feed Cards - Modern & Clean */
+        .feed-card {
+            background: var(--card);
+            border-radius: 25px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            animation: slideUp 0.4s ease-out;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-header {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .card-header:hover {
+            background: rgba(0,0,0,0.02);
+        }
+
+        .anonymous-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 15px;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .masked-reg {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text);
+        }
+
+        .post-time {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 2px;
+        }
+
+        /* Text Post - Fun & Colorful */
+        .card-text-only {
+            padding: 40px 25px;
+            text-align: center;
+            color: white;
+            font-size: 22px;
+            font-weight: 700;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 10s ease infinite;
+            word-break: break-word;
+            line-height: 1.5;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .card-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        /* Like & Comment Actions */
+        .action-bar {
+            display: flex;
+            gap: 25px;
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--gray);
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .action-btn.liked {
+            color: var(--primary);
+        }
+
+        .action-count {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* Comments Section */
+        .comments-preview {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--light-gray);
+        }
+
+        .comment-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: flex-start;
+        }
+
+        .comment-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 12px;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .comment-content {
+            flex: 1;
+            background: var(--bg);
+            padding: 12px 15px;
+            border-radius: 18px;
+            border-top-left-radius: 5px;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        .comment-author {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .comment-time {
+            color: var(--gray);
+        }
+
+        .comment-text {
+            font-size: 14px;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .view-all-comments {
+            color: var(--primary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 5px;
+            display: inline-block;
+        }
+
+        /* Chat List */
+        .chat-list {
+            margin-top: 10px;
+        }
+
+        .chat-room-item {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .chat-room-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .chat-avatar {
+            width: 55px;
+            height: 55px;
+            border-radius: 18px;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+        }
+
+        .chat-info {
+            flex: 1;
+        }
+
+        .chat-name {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .chat-last-message {
+            font-size: 14px;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .chat-time {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .unread-badge {
+            background: var(--primary);
+            color: white;
+            border-radius: 20px;
+            padding: 2px 8px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* Chat Room */
+        .chat-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .chat-container.active {
+            display: flex;
+        }
+
+        .chat-header {
+            padding: 20px;
+            background: var(--gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .back-btn {
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            max-width: 80%;
+        }
+
+        .message.my-message {
+            flex-direction: row-reverse;
+            align-self: flex-end;
+        }
+
+        .message-bubble {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 20px;
+            border-top-left-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .my-message .message-bubble {
+            background: var(--gradient);
+            color: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: var(--gray);
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .my-message .message-time {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .chat-input-area {
+            padding: 20px;
+            background: white;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            background: var(--bg);
+            border-radius: 30px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .send-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 30px;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Drawer Modals */
+        .drawer {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: flex-end;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .drawer.active {
+            display: flex;
+        }
+
+        .drawer-content {
+            width: 100%;
+            background: white;
+            border-radius: 35px 35px 0 0;
+            padding: 25px;
+            animation: slideUp 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Comments Drawer */
+        .comments-drawer .drawer-content {
+            min-height: 70vh;
+        }
+
+        .comment-input-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            position: sticky;
+            bottom: 0;
+            background: white;
+            padding: 15px 0;
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid var(--light-gray);
+            border-radius: 30px;
+            font-size: 16px;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .comment-input:focus {
+            border-color: var(--primary);
+        }
+
+        .post-comment-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 30px;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        /* Create Post Drawer */
+        .post-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .post-option {
+            background: var(--bg);
+            padding: 30px 20px;
+            border-radius: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .post-option:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .post-option i {
+            font-size: 40px;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .post-option span {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .close-drawer {
+            text-align: right;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+            margin-bottom: 10px;
+        }
+
+        /* Text Post Creator */
+        .text-creator textarea {
+            width: 100%;
+            height: 200px;
+            border: none;
+            background: var(--bg);
+            border-radius: 25px;
+            padding: 25px;
+            font-size: 20px;
+            resize: none;
+            outline: none;
+            margin: 20px 0;
+        }
+
+        /* Loading & Empty States */
+        .loading-spinner {
+            text-align: center;
+            padding: 30px;
+            color: var(--primary);
+            font-size: 30px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 20px;
+            right: 20px;
+            background: var(--text);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 30px;
+            text-align: center;
+            z-index: 3000;
+            display: none;
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .toast.show {
+            display: block;
+        }
+    
+    /* Sort toggle styles */
+.sort-btn {
+    transition: all 0.3s ease;
+}
+
+.sort-btn.active {
+    background: white !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.sort-btn:hover {
+    background: rgba(255,255,255,0.5);
+}
+
+/* Refresh animation */
+@keyframes refresh {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.refreshing {
+    animation: refresh 1s linear infinite;
+}
+
+/* Share button style */
+.action-btn .fa-share {
+    font-size: 20px;
+}
+    
+    /* Add to your styles */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+.send-btn:disabled,
+.post-comment-btn:disabled,
+.btn-post:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Modern Community Chat styling */
+.community-chat-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 25px;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
+
+.community-chat-header h2 {
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.community-chat-header p {
+    opacity: 0.9;
+    font-size: 14px;
+}
+
+.online-badge {
+    background: rgba(255,255,255,0.2);
+    padding: 5px 15px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 13px;
+}
+
+.chat-room-item.global {
+    background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+    border: 2px solid #667eea30;
+    transform: scale(1.02);
+    margin-bottom: 20px;
+}
+
+.chat-room-item.global .chat-avatar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.dm-locked-badge {
+    font-size: 11px;
+    background: #ff4757;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 8px;
+}
+
+/* Clickable avatar in chat */
+.message-avatar {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.message-avatar:hover {
+    transform: scale(1.1);
+}
+
+.message-avatar .anonymous-avatar {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+    transition: box-shadow 0.2s;
+}
+
+.message-avatar:hover .anonymous-avatar {
+    box-shadow: 0 0 0 3px var(--primary);
+}
+
+/* Tooltip for clickable avatars */
+.message-avatar {
+    position: relative;
+}
+
+.message-avatar:hover::after {
+    content: "Click to DM";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 10px;
+    white-space: nowrap;
+    margin-bottom: 5px;
+    z-index: 10;
+}
+
+/* User Profile Popup */
+.user-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 5000;
+    backdrop-filter: blur(5px);
+}
+
+.user-popup {
+    background: white;
+    border-radius: 30px;
+    padding: 30px;
+    width: 85%;
+    max-width: 320px;
+    text-align: center;
+    animation: slideUp 0.3s ease;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.popup-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 30px;
+    background: var(--gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 50px;
+    margin: 0 auto 20px;
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.popup-reg {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.popup-dept {
+    font-size: 16px;
+    color: var(--gray);
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.popup-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.popup-btn {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.popup-btn-primary {
+    background: var(--gradient);
+    color: white;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.popup-btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.5);
+}
+
+.popup-btn-secondary {
+    background: var(--light-gray);
+    color: var(--text);
+}
+
+.popup-btn-secondary:hover {
+    background: #d1d5db;
+}
+
+.popup-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--gray);
+}
+    </style>
+</head>
+<body>
+    <!-- Feed View -->
+    <div id="feed-view" class="view active">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1 style="font-size: 28px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">WhisperWall</h1>
+            <span style="font-size: 14px; color: var(--gray);">👥 <span id="online-count">100+</span> gossiping</span>
+        </div>
+        <div id="feed-container"></div>
+        <div id="feed-loader" class="loading-spinner" style="display: none;">
+            <i class="fas fa-circle-notch"></i>
+        </div>
+    </div>
+
+    <!-- Chat List View -->
+    <div id="chat-view" class="view">
+        <h1 style="margin-bottom: 20px;">💬 Chats</h1>
+        <div class="chat-list">
+            <div class="chat-room-item global" onclick="openGlobalChat()">
+    <div class="chat-avatar">
+        <i class="fas fa-globe"></i>
+    </div>
+    <div class="chat-info">
+        <div class="chat-name">🌍 Community Chat <span class="online-badge" style="font-size: 11px; background: #25D366; color: white; padding: 2px 8px; border-radius: 12px; margin-left: 8px;"><span id="global-online">245</span> online</span></div>
+        <div class="chat-last-message">
+            <i class="fas fa-users"></i> Everyone's talking here... Join the conversation!
+        </div>
+    </div>
+    <div class="chat-time">now</div>
+</div>
+            <div id="private-chats-list"></div>
+        </div>
+    </div>
+
+    <!-- Profile View -->
+    <div id="profile-view" class="view">
+        <h1 style="margin-bottom: 20px;">👤 Me</h1>
+        <div class="feed-card" style="padding: 30px 20px;">
+            <div class="anonymous-avatar" style="width: 80px; height: 80px; font-size: 40px; margin: 0 auto 15px;">
+                <i class="fas fa-user-secret"></i>
+            </div>
+            <h2 id="profile-name" style="text-align: center;">Loading...</h2>
+            <p id="profile-reg" style="text-align: center; color: var(--gray); margin-bottom: 25px;"></p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; font-weight: 700;" id="my-posts-count">0</div>
+                    <div style="color: var(--gray);">Whispers</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; font-weight: 700;" id="my-chats-count">0</div>
+                    <div style="color: var(--gray);">Chats</div>
+                </div>
+            </div>
+            <button onclick="logout()" style="width: 100%; padding: 15px; background: #ff4757; color: white; border: none; border-radius: 20px; font-size: 16px; font-weight: 700; cursor: pointer;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchView('feed-view', this)">
+            <i class="fas fa-newspaper"></i>
+        </div>
+        <div class="nav-item" onclick="switchView('chat-view', this)">
+            <i class="fas fa-comment-dots"></i>
+        </div>
+        <div class="nav-item" onclick="switchView('profile-view', this)">
+            <i class="fas fa-user-circle"></i>
+        </div>
+    </div>
+
+    <!-- FAB - Only visible on feed -->
+    <div class="fab" id="main-fab" onclick="openCreatePostDrawer()">
+        <i class="fas fa-feather-alt"></i>
+    </div>
+
+    <!-- Create Post Drawer -->
+    <div id="create-post-drawer" class="drawer" onclick="closeDrawerOnOutsideClick(event, 'create-post-drawer')">
+        <div class="drawer-content">
+            <div class="close-drawer" onclick="closeDrawer('create-post-drawer')">
+                <i class="fas fa-times"></i>
+            </div>
+            <h2 style="margin-bottom: 10px;">Spill the tea ☕</h2>
+            <p style="color: var(--gray); margin-bottom: 20px;">Share your thoughts anonymously</p>
+            <div class="post-options">
+                <div class="post-option" onclick="openTextPost()">
+                    <i class="fas fa-feather-alt"></i>
+                    <span>Whisper</span>
+                </div>
+                <div class="post-option" onclick="showComingSoon()">
+                    <i class="fas fa-poll"></i>
+                    <span>Poll</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Text Post Drawer -->
+    <div id="text-post-drawer" class="drawer" onclick="closeDrawerOnOutsideClick(event, 'text-post-drawer')">
+        <div class="drawer-content">
+            <div class="close-drawer" onclick="closeDrawer('text-post-drawer')">
+                <i class="fas fa-times"></i>
+            </div>
+            <h2>✍️ Write your whisper</h2>
+            <div class="text-creator">
+                <textarea id="post-text" placeholder="What's the tea? Share anonymously..."></textarea>
+                <button onclick="uploadTextPost()" class="send-btn" style="width: 100%; border-radius: 20px; height: 60px;">
+                    <i class="fas fa-paper-plane"></i> Post Anonymously
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comments Drawer -->
+    <div id="comments-drawer" class="drawer comments-drawer" onclick="closeDrawerOnOutsideClick(event, 'comments-drawer')">
+        <div class="drawer-content">
+            <div class="close-drawer" onclick="closeDrawer('comments-drawer')">
+                <i class="fas fa-times"></i>
+            </div>
+            <h2 id="comments-drawer-title">💬 Comments</h2>
+            <div id="comments-container" style="max-height: 50vh; overflow-y: auto; margin: 20px 0;"></div>
+            <div class="comment-input-area">
+                <input type="text" id="comment-input" class="comment-input" placeholder="Add a comment...">
+                <button onclick="postComment()" class="post-comment-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Container -->
+    <div id="chat-container" class="chat-container">
+        <div class="chat-header">
+            <div class="back-btn" onclick="closeChat()">
+                <i class="fas fa-arrow-left"></i>
+            </div>
+            <div>
+                <h3 id="chat-title">Loading...</h3>
+                <p id="chat-subtitle" style="font-size: 13px; opacity: 0.8;">Anonymous chat</p>
+            </div>
+        </div>
+        <div id="chat-messages" class="chat-messages"></div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" class="chat-input" placeholder="Type a message..." onkeypress="handleChatKeyPress(event)">
+            <button onclick="sendMessage()" class="send-btn">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- User Profile Popup -->
+    <div id="user-popup" class="user-popup-overlay" onclick="closeUserPopup()">
+        <div class="user-popup" onclick="event.stopPropagation()">
+            <div class="popup-close" onclick="closeUserPopup()">✕</div>
+            <div class="popup-avatar">
+                <i class="fas fa-user-secret"></i>
+            </div>
+            <div class="popup-reg" id="popup-reg">FPS/PHY/**/****</div>
+            <div class="popup-dept" id="popup-dept">Faculty of Physical Sciences</div>
+            <div class="popup-buttons">
+                <button class="popup-btn popup-btn-secondary" onclick="closeUserPopup()">Cancel</button>
+                <button class="popup-btn popup-btn-primary" id="popup-dm-btn" onclick="startDMFromPopup()">
+                    <i class="fas fa-comment"></i> Send DM
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // ============================================
+    // FUD ANONYMOUS - SUPABASE + FASTAPI VERSION
+    // ============================================
+
+    // API Configuration - Update with your Render URL
+    const API_BASE_URL = window.location.hostname === 'localhost' 
+        ? 'http://localhost:8000' 
+        : 'https://your-app-name.onrender.com'; // Update this after deployment
+
+    // WebSocket for real-time features (optional - can use polling as fallback)
+    const WS_BASE_URL = API_BASE_URL.replace('http', 'ws');
+
+    // ========== GLOBAL VARIABLES ==========
+    let currentUser = null;
+    let currentUserData = null;
+    let token = localStorage.getItem('token');
+    
+    let loadingPosts = false;
+    let currentPostId = null;
+    let currentChatId = null;
+    let currentChatUser = null;
+    let messagesInterval = null;
+    
+    // Feed variables
+    let currentSortMethod = 'random';
+    let lastVisiblePost = null;
+    let posts = [];
+    let page = 1;
+    
+    // Online users tracking
+    let onlineUsers = new Set();
+    let onlineInterval = null;
+
+    // ========== HELPER FUNCTIONS ==========
+    function maskRegNo(regNo) {
+        if (!regNo) return "Anonymous";
+        const parts = regNo.split('/');
+        if (parts.length < 4) return regNo;
+        return `${parts[0]}/${parts[1]}/**/****`;
+    }
+
+    function showToast(message, duration = 3000) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), duration);
+    }
+
+    function formatTime(timestamp) {
+        if (!timestamp) return 'Just now';
+        
+        try {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = (now - date) / 1000;
+
+            if (diff < 60) return 'Just now';
+            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+            if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+            
+            return date.toLocaleDateString();
+        } catch (e) {
+            return 'Just now';
+        }
+    }
+
+    // API Request Helper with Auth
+    async function apiRequest(endpoint, method = 'GET', body = null) {
+        const options = {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        };
+
+        if (token) {
+            options.headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        if (body) {
+            options.body = JSON.stringify(body);
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+            
+            if (response.status === 401) {
+                // Token expired or invalid
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'auth.html';
+                return null;
+            }
+
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.detail || 'Request failed');
+            }
+
+            return data;
+        } catch (error) {
+            console.error('API Error:', error);
+            throw error;
+        }
+    }
+
+    // ========== AUTH CHECK ==========
+    async function checkAuth() {
+        token = localStorage.getItem('token');
+        const userStr = localStorage.getItem('user');
+        
+        if (!token || !userStr) {
+            window.location.href = 'auth.html';
+            return false;
+        }
+
+        try {
+            currentUserData = JSON.parse(userStr);
+            currentUser = { uid: currentUserData.id }; // For compatibility with existing code
+            
+            // Verify token with backend
+            const user = await apiRequest('/api/auth/me');
+            
+            document.getElementById('profile-name').textContent = user.full_name;
+            document.getElementById('profile-reg').textContent = maskRegNo(user.reg_no);
+            
+            // Start online presence tracking
+            startOnlineTracking();
+            
+            return true;
+        } catch (error) {
+            console.error('Auth check failed:', error);
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'auth.html';
+            return false;
+        }
+    }
+
+    // ========== ONLINE TRACKING ==========
+    function startOnlineTracking() {
+        // Update online status every 30 seconds
+        updateOnlineStatus();
+        onlineInterval = setInterval(updateOnlineStatus, 30000);
+        
+        // Simulate online count (in production, use WebSocket)
+        setInterval(() => {
+            const count = Math.floor(Math.random() * 200) + 100;
+            document.getElementById('online-count').textContent = count + '+';
+            document.getElementById('global-online').textContent = count;
+        }, 10000);
+    }
+
+    async function updateOnlineStatus() {
+        try {
+            // In production, you'd call your API to update online status
+            // await apiRequest('/api/users/online', 'POST');
+        } catch (error) {
+            console.error('Failed to update online status:', error);
+        }
+    }
+
+    // ========== NAVIGATION FUNCTIONS ==========
+    window.switchView = function(viewId, element) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(viewId).classList.add('active');
+        element.classList.add('active');
+
+        const fab = document.getElementById('main-fab');
+        if (viewId === 'feed-view') {
+            fab.classList.remove('hidden');
+            
+            // Load feed if empty
+            if (document.getElementById('feed-container').children.length === 0) {
+                refreshFeed();
+            }
+        } else {
+            fab.classList.add('hidden');
+        }
+
+        // Load chats when switching to chat view
+        if (viewId === 'chat-view') {
+            loadPrivateChats();
+        }
+
+        // Load stats when switching to profile
+        if (viewId === 'profile-view') {
+            updateProfileStats();
+        }
+    };
+
+    // ========== DRAWER FUNCTIONS ==========
+    window.openCreatePostDrawer = function() {
+        document.getElementById('create-post-drawer').classList.add('active');
+    };
+
+    window.closeDrawer = function(drawerId) {
+        document.getElementById(drawerId).classList.remove('active');
+    };
+
+    window.closeDrawerOnOutsideClick = function(event, drawerId) {
+        if (event.target.classList.contains('drawer')) {
+            closeDrawer(drawerId);
+        }
+    };
+
+    window.openTextPost = function() {
+        closeDrawer('create-post-drawer');
+        document.getElementById('text-post-drawer').classList.add('active');
+    };
+
+    window.showComingSoon = function() {
+        showToast('🔥 Coming soon! Stay tuned...');
+        closeDrawer('create-post-drawer');
+    };
+
+    // ========== POST FUNCTIONS ==========
+    window.uploadTextPost = async function() {
+        const text = document.getElementById('post-text').value.trim();
+        if (!text) {
+            showToast('Write something first!');
+            return;
+        }
+
+        const postButton = document.querySelector('#text-post-drawer .send-btn');
+        const originalText = postButton.innerHTML;
+        
+        postButton.disabled = true;
+        postButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
+        postButton.style.opacity = '0.7';
+
+        try {
+            await apiRequest('/api/posts', 'POST', {
+                content: text,
+                type: 'text'
+            });
+
+            document.getElementById('post-text').value = '';
+            closeDrawer('text-post-drawer');
+            showToast('✨ Whisper posted!');
+            refreshFeed();
+            
+        } catch (error) {
+            showToast('Error posting. Try again!');
+            console.error(error);
+        } finally {
+            postButton.disabled = false;
+            postButton.innerHTML = originalText;
+            postButton.style.opacity = '1';
+        }
+    };
+
+    window.toggleLike = async function(postId, button) {
+        if (!currentUserData) return;
+
+        try {
+            const isLiked = button.classList.contains('liked');
+            
+            if (isLiked) {
+                await apiRequest(`/api/posts/${postId}/unlike`, 'POST');
+                button.classList.remove('liked');
+            } else {
+                await apiRequest(`/api/posts/${postId}/like`, 'POST');
+                button.classList.add('liked');
+            }
+
+            // Update count
+            const countSpan = button.querySelector('.action-count');
+            const currentCount = parseInt(countSpan.textContent);
+            countSpan.textContent = isLiked ? currentCount - 1 : currentCount + 1;
+
+        } catch (error) {
+            console.error('Error toggling like:', error);
+            showToast('Failed to like post');
+        }
+    };
+
+    window.openComments = function(postId) {
+        currentPostId = postId;
+        document.getElementById('comments-drawer').classList.add('active');
+        loadComments(postId);
+    };
+
+    window.postComment = async function() {
+        const input = document.getElementById('comment-input');
+        const text = input.value.trim();
+        
+        if (!text || !currentPostId || !currentUserData) return;
+
+        const commentButton = document.querySelector('#comments-drawer .post-comment-btn');
+        const originalIcon = commentButton.innerHTML;
+        
+        commentButton.disabled = true;
+        commentButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        commentButton.style.opacity = '0.7';
+
+        try {
+            await apiRequest(`/api/posts/${currentPostId}/comments`, 'POST', {
+                content: text
+            });
+
+            input.value = '';
+            await loadComments(currentPostId);
+            showToast('Comment posted!');
+            
+        } catch (error) {
+            showToast('Error posting comment');
+            console.error(error);
+        } finally {
+            commentButton.disabled = false;
+            commentButton.innerHTML = originalIcon;
+            commentButton.style.opacity = '1';
+            input.focus();
+        }
+    };
+
+    window.sharePost = function(postId) {
+        const postUrl = `${window.location.origin}?post=${postId}`;
+        
+        if (navigator.share) {
+            navigator.share({
+                title: 'Check this FUD gossip!',
+                text: 'Found this on WhisperWall',
+                url: postUrl
+            }).catch(console.error);
+        } else {
+            navigator.clipboard.writeText(postUrl).then(() => {
+                showToast('📋 Link copied to clipboard!');
+            });
+        }
+    };
+
+    // ========== FEED FUNCTIONS ==========
+    window.toggleFeedSort = function(method, event) {
+        currentSortMethod = method;
+        page = 1;
+        
+        document.querySelectorAll('.sort-btn').forEach(btn => {
+            btn.classList.remove('active');
+            btn.style.background = 'transparent';
+            btn.style.boxShadow = 'none';
+        });
+        
+        if (event) {
+            event.target.classList.add('active');
+            event.target.style.background = 'white';
+            event.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+        }
+        
+        refreshFeed();
+    };
+
+    function refreshFeed() {
+        document.getElementById('feed-container').innerHTML = '';
+        page = 1;
+        posts = [];
+        loadFeed();
+    }
+
+    async function loadFeed() {
+        if (loadingPosts) return;
+        loadingPosts = true;
+
+        const loader = document.getElementById('feed-loader');
+        const container = document.getElementById('feed-container');
+        
+        loader.style.display = 'block';
+
+        try {
+            const data = await apiRequest(`/api/posts?page=${page}&sort=${currentSortMethod}`);
+            
+            if (data.posts.length === 0 && page === 1) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-feather-alt"></i>
+                        <p>No whispers yet. Be the first to share!</p>
+                    </div>
+                `;
+                loader.style.display = 'none';
+                loadingPosts = false;
+                return;
+            }
+
+            // Randomize if needed
+            if (currentSortMethod === 'random') {
+                data.posts = shuffleArray(data.posts);
+            }
+
+            data.posts.forEach(post => {
+                renderPost(post);
+            });
+
+            page++;
+            loader.style.display = 'none';
+            loadingPosts = false;
+
+        } catch (error) {
+            console.error('Error loading feed:', error);
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Error loading posts. Please refresh.</p>
+                    <button onclick="refreshFeed()" style="margin-top: 10px; padding: 8px 20px; background: var(--primary); color: white; border: none; border-radius: 20px; cursor: pointer;">Refresh</button>
+                </div>
+            `;
+            loader.style.display = 'none';
+            loadingPosts = false;
+        }
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function renderPost(post) {
+        const container = document.getElementById('feed-container');
+        const displayID = maskRegNo(post.user_reg_no);
+        const time = post.created_at ? formatTime(post.created_at) : 'Just now';
+        const isLiked = post.liked_by && post.liked_by.includes(currentUserData?.id);
+
+        const gradients = [
+            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+            'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+            'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+            'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+            'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+            'linear-gradient(135deg, #f6d365 0%, #fda085 100%)',
+            'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)'
+        ];
+        
+        const randomGradient = gradients[Math.floor(Math.random() * gradients.length)];
+
+        const card = document.createElement('div');
+        card.className = 'feed-card';
+        card.setAttribute('data-post-id', post.id);
+        card.style.animation = 'slideUp 0.5s ease-out';
+        
+        card.innerHTML = `
+            <div class="card-header" onclick="showToast('💬 Go to Community Chat to DM people')">
+                <div class="anonymous-avatar" style="background: ${randomGradient}">
+                    <i class="fas fa-user-secret"></i>
+                </div>
+                <div class="user-info">
+                    <div class="masked-reg">${displayID}</div>
+                    <div class="post-time">${time}</div>
+                </div>
+            </div>
+            <div class="card-text-only" style="background: ${randomGradient}">${post.content}</div>
+            <div class="card-footer">
+                <div class="action-bar">
+                    <div class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}', this)">
+                        <i class="fas fa-heart"></i>
+                        <span class="action-count">${post.likes || 0}</span>
+                    </div>
+                    <div class="action-btn" onclick="openComments('${post.id}')">
+                        <i class="fas fa-comment"></i>
+                        <span class="action-count">${post.comments || 0}</span>
+                    </div>
+                    <div class="action-btn" onclick="sharePost('${post.id}')">
+                        <i class="fas fa-share"></i>
+                    </div>
+                </div>
+                ${post.comments > 0 ? `
+                    <div class="comments-preview">
+                        <span class="view-all-comments" onclick="openComments('${post.id}')">
+                            View all ${post.comments} comments
+                        </span>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+        
+        container.appendChild(card);
+    }
+
+    function addSortToggle() {
+        const feedHeader = document.querySelector('#feed-view > div:first-child');
+        if (feedHeader && !document.getElementById('sort-toggle-container')) {
+            const toggleHTML = `
+                <div id="sort-toggle-container" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; width: 100%;">
+                    <h1 style="font-size: 28px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0;">WhisperWall</h1>
+                    <div style="display: flex; background: #f0f0f0; border-radius: 25px; padding: 3px;">
+                        <button onclick="toggleFeedSort('random', event)" class="sort-btn active" data-sort="random" style="padding: 8px 16px; border: none; background: white; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">🎲 Random</button>
+                        <button onclick="toggleFeedSort('latest', event)" class="sort-btn" data-sort="latest" style="padding: 8px 16px; border: none; background: transparent; border-radius: 25px; cursor: pointer; font-weight: 600;">⏱️ Latest</button>
+                    </div>
+                </div>
+            `;
+            feedHeader.innerHTML = toggleHTML;
+        }
+    }
+
+    // ========== COMMENTS FUNCTIONS ==========
+    async function loadComments(postId) {
+        const commentsContainer = document.getElementById('comments-container');
+        commentsContainer.innerHTML = '<div class="loading-spinner"><i class="fas fa-circle-notch"></i></div>';
+
+        try {
+            const data = await apiRequest(`/api/posts/${postId}/comments`);
+            
+            if (data.comments.length === 0) {
+                commentsContainer.innerHTML = '<div class="empty-state"><i class="fas fa-comments"></i><p>No comments yet. Be the first!</p></div>';
+                return;
+            }
+
+            let html = '';
+            data.comments.forEach(comment => {
+                html += `
+                    <div class="comment-item">
+                        <div class="comment-avatar">
+                            <i class="fas fa-user-secret"></i>
+                        </div>
+                        <div class="comment-content">
+                            <div class="comment-header">
+                                <span class="comment-author">${maskRegNo(comment.user_reg_no)}</span>
+                                <span class="comment-time">${formatTime(comment.created_at)}</span>
+                            </div>
+                            <div class="comment-text">${comment.content}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            commentsContainer.innerHTML = html;
+        } catch (error) {
+            console.error('Error loading comments:', error);
+            commentsContainer.innerHTML = '<div class="empty-state">Error loading comments</div>';
+        }
+    }
+
+    // ========== CHAT FUNCTIONS ==========
+    window.openGlobalChat = function() {
+        currentChatId = 'global';
+        currentChatUser = null;
+        document.getElementById('chat-title').textContent = '🌍 Global Gossip';
+        document.getElementById('chat-subtitle').textContent = 'Everyone is here';
+        document.getElementById('chat-container').classList.add('active');
+        loadMessages('global');
+    };
+
+    window.openPrivateChat = async function(userUid, userRegNo, source = 'post') {
+        // If clicked from feed post, show locked message
+        if (source === 'post') {
+            showToast('💬 Tap on users in Community Chat to DM them');
+            return;
+        }
+        
+        // From community chat or chat list - allow DM
+        if (userUid === currentUserData.id) {
+            showToast("That's you! Can't chat with yourself");
+            return;
+        }
+
+        showToast('Opening chat...');
+        
+        try {
+            const chatId = [currentUserData.id, userUid].sort().join('_');
+            currentChatId = chatId;
+            currentChatUser = { uid: userUid, regNo: userRegNo };
+            
+            document.getElementById('chat-title').textContent = maskRegNo(userRegNo);
+            document.getElementById('chat-subtitle').textContent = 'Anonymous chat';
+            document.getElementById('chat-container').classList.add('active');
+            
+            loadMessages(chatId);
+        } catch (error) {
+            console.error('Error opening chat:', error);
+            showToast('Error opening chat');
+        }
+    };
+
+    window.closeChat = function() {
+        document.getElementById('chat-container').classList.remove('active');
+        if (messagesInterval) {
+            clearInterval(messagesInterval);
+            messagesInterval = null;
+        }
+    };
+
+    window.sendMessage = async function() {
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        
+        if (!text || !currentChatId || !currentUserData) return;
+
+        const sendButton = document.querySelector('#chat-container .send-btn');
+        const originalIcon = sendButton.innerHTML;
+        
+        sendButton.disabled = true;
+        sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        sendButton.style.opacity = '0.7';
+
+        try {
+            await apiRequest(`/api/chats/${currentChatId}/messages`, 'POST', {
+                content: text
+            });
+
+            input.value = '';
+            await loadMessages(currentChatId, false); // Load without showing loading
+            document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+            
+        } catch (error) {
+            showToast('Error sending message');
+            console.error(error);
+        } finally {
+            sendButton.disabled = false;
+            sendButton.innerHTML = originalIcon;
+            sendButton.style.opacity = '1';
+            input.focus();
+        }
+    };
+
+    window.handleChatKeyPress = function(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    };
+
+    async function loadMessages(chatId, showLoading = true) {
+        const messagesContainer = document.getElementById('chat-messages');
+        
+        if (showLoading) {
+            if (chatId === 'global') {
+                messagesContainer.innerHTML = `
+                    <div style="background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%); padding: 15px; border-radius: 15px; margin-bottom: 15px; text-align: center;">
+                        <p style="font-weight: 600; margin-bottom: 5px;">🌍 Community Chat</p>
+                        <p style="font-size: 13px; color: #666;">Click on anyone's avatar to start a private chat</p>
+                        <div style="display: flex; justify-content: center; gap: 5px; margin-top: 10px;">
+                            <span class="online-badge" style="background: #25D366; color: white; padding: 3px 12px; border-radius: 20px; font-size: 12px;"><span id="global-online-msg">245</span> online</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                messagesContainer.innerHTML = '<div class="loading-spinner"><i class="fas fa-circle-notch"></i></div>';
+            }
+        }
+
+        // Set up polling for messages (every 3 seconds)
+        if (messagesInterval) {
+            clearInterval(messagesInterval);
+        }
+
+        await fetchMessages(chatId);
+        
+        messagesInterval = setInterval(() => {
+            fetchMessages(chatId);
+        }, 3000);
+    }
+
+    async function fetchMessages(chatId) {
+        try {
+            const data = await apiRequest(`/api/chats/${chatId}/messages`);
+            renderMessages(data.messages);
+        } catch (error) {
+            console.error('Error fetching messages:', error);
+        }
+    }
+
+    function renderMessages(messages) {
+        const messagesContainer = document.getElementById('chat-messages');
+        const isGlobal = currentChatId === 'global';
+        
+        // Keep the banner for global chat
+        if (isGlobal) {
+            const banner = messagesContainer.firstChild;
+            messagesContainer.innerHTML = '';
+            if (banner) messagesContainer.appendChild(banner);
+        } else {
+            messagesContainer.innerHTML = '';
+        }
+        
+        messages.forEach(msg => {
+            const isMyMessage = msg.sender_uid === currentUserData?.id;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isMyMessage ? 'my-message' : ''}`;
+            
+            // Make avatar clickable for other users' messages
+            const avatarClick = isMyMessage ? '' : `onclick="showUserPopup('${msg.sender_uid}', '${msg.sender_reg_no}')" style="cursor: pointer;"`;
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar" ${avatarClick}>
+                    <div class="anonymous-avatar" style="width: 35px; height: 35px; font-size: 16px;">
+                        <i class="fas fa-user-secret"></i>
+                    </div>
+                </div>
+                <div class="message-bubble">
+                    <div>${msg.content}</div>
+                    <div class="message-time">${formatTime(msg.created_at)}</div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+        });
+        
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // ========== PRIVATE CHATS LOADER ==========
+    async function loadPrivateChats() {
+        const chatsList = document.getElementById('private-chats-list');
+        
+        if (!currentUserData) {
+            chatsList.innerHTML = '<div class="loading-spinner"><i class="fas fa-circle-notch"></i></div>';
+            return;
+        }
+        
+        try {
+            chatsList.innerHTML = '<div class="loading-spinner"><i class="fas fa-circle-notch"></i></div>';
+            
+            const data = await apiRequest('/api/chats');
+            
+            if (data.chats.length === 0) {
+                chatsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-comments"></i>
+                        <p>No private chats yet</p>
+                        <p style="font-size: 14px; color: #666; margin: 10px 0;">Start by tapping on any user in Community Chat!</p>
+                        <div style="background: #f0f2f5; padding: 15px; border-radius: 15px; margin-top: 15px;">
+                            <p style="font-size: 13px;">💡 <strong>Tip:</strong> Go to Community Chat and click on anyone's avatar to DM them</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            data.chats.forEach(chat => {
+                const otherUser = chat.participants.find(p => p.id !== currentUserData.id);
+                if (!otherUser) return;
+                
+                html += `
+                    <div class="chat-room-item" onclick="openPrivateChat('${otherUser.id}', '${otherUser.reg_no}', 'chat')">
+                        <div class="chat-avatar">
+                            <i class="fas fa-user-secret"></i>
+                        </div>
+                        <div class="chat-info">
+                            <div class="chat-name">${maskRegNo(otherUser.reg_no)}</div>
+                            <div class="chat-last-message">
+                                ${chat.last_message ? chat.last_message.substring(0, 35) : 'No messages yet'}${chat.last_message && chat.last_message.length > 35 ? '...' : ''}
+                            </div>
+                        </div>
+                        <div class="chat-time">${chat.last_message_time ? formatTime(chat.last_message_time) : ''}</div>
+                    </div>
+                `;
+            });
+            
+            chatsList.innerHTML = html;
+            
+        } catch (error) {
+            console.error('Error loading private chats:', error);
+            chatsList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-comments"></i>
+                    <p>Ready for private chats!</p>
+                    <p style="font-size: 14px; color: #666; margin: 10px 0;">Tap on any user in Community Chat to start chatting</p>
+                    <button onclick="loadPrivateChats()" style="margin-top: 10px; padding: 8px 20px; background: var(--primary); color: white; border: none; border-radius: 20px; cursor: pointer;">Refresh</button>
+                </div>
+            `;
+        }
+    }
+
+    // ========== PROFILE STATS ==========
+    async function updateProfileStats() {
+        if (!currentUserData) return;
+
+        try {
+            const data = await apiRequest('/api/users/stats');
+            
+            document.getElementById('my-posts-count').textContent = data.posts_count || 0;
+            document.getElementById('my-chats-count').textContent = data.chats_count || 0;
+        } catch (error) {
+            console.error('Error updating profile stats:', error);
+        }
+    }
+
+    // ========== USER POPUP FUNCTIONS ==========
+    let selectedUserForDM = null;
+
+    function showUserPopup(userUid, userRegNo) {
+        selectedUserForDM = { uid: userUid, regNo: userRegNo };
+        
+        // Parse reg number
+        const parts = userRegNo.split('/');
+        const faculty = parts[0] || '';
+        
+        // Get faculty full name
+        const facultyNames = {
+            'FLS': 'Faculty of Life Sciences',
+            'FCOM': 'Faculty of Computing',
+            'FASS': 'Faculty of Arts and Social Sciences',
+            'FMS': 'Faculty of Management Sciences',
+            'FAGR': 'Faculty of Agriculture',
+            'CMAMS': 'College of Medicine',
+            'FPS': 'Faculty of Physical Sciences'
+        };
+        
+        const facultyFull = facultyNames[faculty] || 'Federal University Dutse';
+        
+        document.getElementById('popup-reg').textContent = maskRegNo(userRegNo);
+        document.getElementById('popup-dept').textContent = facultyFull;
+        
+        document.getElementById('user-popup').style.display = 'flex';
+    }
+
+    function closeUserPopup() {
+        document.getElementById('user-popup').style.display = 'none';
+        selectedUserForDM = null;
+    }
+
+    async function startDMFromPopup() {
+        if (!selectedUserForDM) return;
+        
+        closeUserPopup();
+        await openPrivateChat(selectedUserForDM.uid, selectedUserForDM.regNo, 'chat');
+    }
+
+    window.logout = function() {
+        if (onlineInterval) {
+            clearInterval(onlineInterval);
+        }
+        if (messagesInterval) {
+            clearInterval(messagesInterval);
+        }
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = 'auth.html';
+    };
+
+    // ========== PULL TO REFRESH ==========
+    let touchStartY = 0;
+
+    document.addEventListener('touchstart', e => {
+        touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', e => {
+        const touchEndY = e.changedTouches[0].clientY;
+        
+        if (touchEndY > touchStartY + 100 && window.scrollY === 0) {
+            showToast('🔄 Refreshing feed...');
+            refreshFeed();
+        }
+    }, { passive: true });
+
+    // ========== INFINITE SCROLL ==========
+    window.addEventListener('scroll', () => {
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+            loadFeed();
+        }
+    });
+
+    // ========== INITIALIZATION ==========
+    async function init() {
+        const authed = await checkAuth();
+        if (authed) {
+            addSortToggle();
+            refreshFeed();
+            
+            // Update online count periodically
+            setInterval(() => {
+                const count = Math.floor(Math.random() * 200) + 100;
+                document.getElementById('global-online').textContent = count;
+                const msgOnline = document.getElementById('global-online-msg');
+                if (msgOnline) msgOnline.textContent = count;
+            }, 10000);
+        }
+    }
+
+    // Start the app
+    init();
+
+    // Make functions global
+    window.toggleFeedSort = toggleFeedSort;
+    window.openPrivateChat = openPrivateChat;
+    window.showUserPopup = showUserPopup;
+    window.closeUserPopup = closeUserPopup;
+    window.startDMFromPopup = startDMFromPopup;
+    window.openGlobalChat = openGlobalChat;
+    window.closeChat = closeChat;
+    window.sendMessage = sendMessage;
+    window.handleChatKeyPress = handleChatKeyPress;
+    window.switchView = switchView;
+    window.openCreatePostDrawer = openCreatePostDrawer;
+    window.closeDrawer = closeDrawer;
+    window.closeDrawerOnOutsideClick = closeDrawerOnOutsideClick;
+    window.openTextPost = openTextPost;
+    window.showComingSoon = showComingSoon;
+    window.uploadTextPost = uploadTextPost;
+    window.toggleLike = toggleLike;
+    window.openComments = openComments;
+    window.postComment = postComment;
+    window.sharePost = sharePost;
+    window.logout = logout;
+</script>
+    
+</body>
+</html>
